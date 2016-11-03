@@ -1,0 +1,56 @@
+---
+title: "Re-considering the agenda for biotic homogenization research"
+author: "David J. Harris"
+output: 
+  pdf_document:
+    fig_caption: true
+    keep_tex: true
+bibliography: My Library.bib
+fontsize: 11pt
+geometry: margin=1.25in
+csl: ecology.csl
+header-includes:
+  - \usepackage{setspace}
+abstract: ""
+---
+
+\onehalfspacing
+
+As human influence creates the conditions for some species to spread globally and for others to go extinct, community ecologists have become increasingly concerned about the loss of local biotic distinctiveness, or biotic homogenization. While several frameworks have been proposed [@olden_toward_2003; @cassey_stochastic_2006; @harris_occupancy_2011], *polite implication of ad-hockery*.
+
+In their recent *Ecography* paper, @rosenblad_new_2016 provide a new framework that provides some much-needed quantitative analysis for the field. Their framework does a good job of cataloguing six different kinds of biotic turnover at the scale of individual site pairs and quantifying their possible effects on biotic homogenization. As they note, each of these six kinds of turnover can have different effects, depending on local richness and the initial similarity levels in a data set. Importantly, they identify a "pivot point" in initial similarity levels that seems to control whether a given set of introductions and extinctions will increase similarity or decrease it (although they do not provide a mechanism behind the existence of this pivot point, how robust it is to different kinds of biotic changes, or how to easily find its value). At the end of the paper, they argue that their framework can explain all sorts of effects, but it isn't obvous how to put these verbal arguments into mathematical/statistical terms so they can be evaluated quantitatively.
+
+Like many papers in homogenization research, most of the paper focuses on Jaccard similarity, as averaged over all the different pairs of sites on a landscape (e.g. islands of an archipeligo). To the extent that ecologists are interested in this landscape-level homogenization, it turns out that the kind of detailed analysis of individual pairs of sites presented by Rosenblad and Sax will usually not be necessary--especially when the number of sites and species are each larger than a few dozen. For example, if each species in their bird data set were randomly reassigned to a different set of islands, then the set of "events" would be completely different, but the amount of homogenization would only change by an average of 0.006 on a scale from 0 to 1. In @harris_occupancy_2011, two colleagues and I presented similar results using 47 larger data sets from counties in US states. (For Rosenblad and Sax's plant data set, where there are only 11 islands, the details of individual island pairs are somewhat more important).
+
+If similarity and homogenization do not depend strongly on which sites are occupied by which species, then what does matter? @harris_occupancy_2011 showed (empirically and with an appeal to the law of large numbers) that average similarity depends primarily on the proportion of sites occupied by each species. Specifically, they defined an approximation to mean Jaccard similarity, $J^*$, given by
+
+$$J^* = {\sum_k^K{p_k \choose 2}} \Bigg/ {\sum_k^K\Big[{p_kn\choose 2} - {(1 - p_k)n\choose 2}\Big]},$$
+where $p_k$ is the proportion of sites occupied by species $k$, $n$ is the number of sites, and $n\choose2$ is the number of distinct pairs of sites that can be chosen from a set of $n$. The paper also introduced the *blender* package [@harris_blender:_2014] for R [@r_core_team_r:_2015], which allows users to easily calculate this value with the `jstar` function. Similar results were presented around the same time by @chase_using_2011 and by @vergara_island_2011.
+
+This approximation explained 99.8% of the variance in mean similarity across the 47 data sets @harris_occupancy_2011 analyzed. The approximation also explained an average of 98.8% of the variance in species-level effects on average similarity. Applied to Rosenbland and Sax's bird data set, the same approximation explained 93.9% of the variance in species-level effects on mean similarity without using any information about specific pairs of islands. The model explained somewhat less of the variance in their plant data set, likely because the idiosyncracies of individual islands become more important when the data set only includes 11 of them.
+
+The $J^*$ approximation can also yield several other insights into homogenization's dependence on occupancy changes.
+
+Rosenblad and Sax correctly note the existence of a "pivot point", between homogenization and differentiation, but do not provide a general method for finding it. In 2011, we defined a closely-related point (called $p^*$ or *effective occupancy*) in terms of $J^*$. Informally, the threshold occupancy between net homogenizing and net differentiating effect is a weighted average of the occupancy rates in the community: increasing any species' occupancy rate above a landscape's $p^*$ value will generally cause homogenization, while decreasing a species' occupancy rate below this threshold (or introducing a new rare species) will cause differentiation. Moreover, we showed that the maximum differentiating effect will be found for species whose occupancy approaches $p^*/2$.  
+
+As the number of sites increases, $p^*$ rapidly approaches $\sum_kp_k^2/\sum_kp_k$; a large portion of the homogenization literature (including the examples in Rosenblad & Sax's Discussion section) can be explained by this value. As discussed in @harris_occupancy_2011 (citations omitted):
+
+> $p^*$ also unites many previously disconnected results. For instance, why do older invaders increase similarity more than recent ones)? And why are local range expansions associated with greater homogenization than invasions from other continents? In both cases, the answer can be boiled down to occupancy. Species that have had longer to spread or whose local occupancy rates did not start at zero will have higher occupancy rates and are therefore more likely to contribute to increased similarity.
+
+If all of these patterns can be explained by a single easily-calculable value, where does this leave homogenization research? At the end of @harris_occupancy_2011, we listed three paths forward, which remain largely unexplored.
+
+First, to the extent that $p^*$ explains most of the variance in homogenization research results, future studies should focus on explaining and predicting changes in species' occupancy rates. These are already important for other reasons in basic and applied community ecology.
+
+Second, research should also focus on understanding the influence and importance of non-occupancy factors that explain the residuals from $J^*$. Appendix 2 of @harris_occupancy_2011 addressed the mathematical side of this issue using a Taylor expansion around the occupancy-based appproximation. For any landscape, 
+
+$$\mathrm{mean~Jaccard~similarity} = J^* + \frac{\textrm{cov}(T_{ij}, S_{ij}/T_{ij})}{\mathrm{mean}(T_{ij})}$$, 
+
+where $S_{ij}$ is the number of species that occur in both site $i$ and site $j$, $T_{ij}$ is the number of species in at least one of the two sites, and $\mathrm{cov}$ refers to the population covariance (rather than the more familiar sample covariance).
+
+The ecological side of non-occupancy factors is still less clear, not least because this equation contained a sign error in @harris_occupancy_2011's Appendix 2. After correcting this error, it is clear that $J^*$ will underestimate mean similarity when local species composition is determined by a small number of variables with large effect sizes [e.g. drought in @chase_drought_2007] because the covariance will be negative (see figure). 
+
+Finally, given how much information is averaged out when using mean Jaccard similarity, homogenization researchers should continue to think about similarity at scales below the landscape level. In particular, the possible discrepancies between occupancy and mean similarity discussed above deserve further scrutiny. Reducing the distinctiveness of the extreme site types in Figure [X] intuitively seems like a form of homogenization, even though it would decrease mean Jaccard similarity.  Ecologists should thus consider whether mean Jaccard similarity is the best metric for their purposes, or whether they would be better served by keeping track of something like the number of low-similarity pairs. More generally, explaining the variance in similarity among pairs of sites within a landscape (as ecologists frequently do by regressing similarity against geographic distance or other factors) will become increasingly important. As the focus of homogenization research shifts toward sub-landscape scales, a deeper understanding of biotic turnover on individual pairs of sites (as was provided by Rosenblad and Sax's catalog) will become increasingly valuable.
+
+
+# References
+\singlespacing
