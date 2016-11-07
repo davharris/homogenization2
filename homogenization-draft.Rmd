@@ -96,6 +96,7 @@ scoop = sapply(values, function(x){jstar(c(rep(baseline, K), x), N)})
   # Homogenizing invader
   arrows(baseline, scoop[baseline * N + 1], 1, scoop[N + 1], col = "red", length = .125)
 }
+
 ```
 
 A large portion of the homogenization literature can be explained by this single value. Species that have had longer to spread, and species whose local occupancy rates did not start at zero do not have any unique biological property that causes them to exert larger homogenizing effects on landscapes; they will simply tend to be farther along the path shown in Figure 1 (c.f. [refs]. Precisely the same argument could be made for species with high dispersal rates [refs], [etc.].
