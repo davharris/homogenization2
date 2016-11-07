@@ -66,7 +66,12 @@ Despite the omission of any information at the level of individual sites or site
 
 The above equation can be simplified further using @harris_occupancy_2011's notion of "effective occupancy," denoted $p^*$. This (approximate?) weighted average of the the species' $p_k$ values acts as a "center of gravity" for average similarity: species whose $p_k$ values exceed $p^*$ pull its value up, while species with smaller $p_k$ value pull $p^*$ down. For the same reason, the existence of exotic species will generally cause net differentiation until they occupy at least as many sites as their native counterparts; from then on, their spread will make the landscape more homogenous than it would have been if they hadn't invaded at all (Figure 1). The existence of such a threshold has been clear to homogenization researchers for more than a decade [refs; @rosenblad_new_2016], but its location has not been discussed outside of @harris_occupancy_2011 (nor has the location of an equally important point at $p^*/2$, shown in Figure 1).
 
-```{r, fig.cap="Effect of an exotic species on $J^*$, given a landscape with 120 sites and 20 native species whose occupancy rates produce $p^{*} = 2/3$. When an exotic species begins spreading, it will decrease mean similarity until its own occupancy rate reaches $p^{*}/2$ (blue arrow). When exotic occupancy reaches $p^*$, its occupancy will match the rest of the community, and $J^*$ will return to its initial value (purple arrow). Only once the species becomes more widespread than its native counterparts will it be able to raise $J^*$ above its initial value (red arrow).", fig.height=7/1.618, fig.width=7, echo = FALSE, cache = TRUE}
+```{r, echo = FALSE}
+cap1 = "Effect of an exotic species on $J^*$, given a landscape with 120 sites and 20 native species whose occupancy rates produce $p^{*} = 2/3$. When an exotic species begins spreading, it will decrease mean similarity until its own occupancy rate reaches $p^{*}/2$ (blue arrow). When exotic occupancy reaches $p^*$, its occupancy will match the rest of the community, and $J^*$ will return to its initial value (purple arrow). Only once the species becomes more widespread than its native counterparts will it be able to raise $J^*$ above its initial value (red arrow)."
+```
+
+
+```{r, fig.cap=cap1, fig.height=7/1.618, fig.width=7, echo = FALSE, cache = TRUE}
 baseline = 2/3
 K = 20
 N = 120
