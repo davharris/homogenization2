@@ -45,11 +45,19 @@ errors = sapply(
 
 # Introduction
 
-As human influence creates the conditions for some species to spread globally and for others to go extinct, community ecologists have become increasingly concerned about the loss of local biotic distinctiveness, or biotic homogenization. Homogenization is typically quantified as an increase in the average Jaccard similarity among pairs of sites on a landscape ($\bar{J}$, defined more precisely in Equation \ref{def} below). Community ecologists have struggled, however, to scale site-level biotic turnover into predictable changes in this quantity. While several frameworks have been proposed for understanding these effects, they are cumbersome to use in practice. For example, @olden_toward_2003's framework involves classifying biotic turnover events into 14 categories, while @rosenblad_new_2016's framework involves six. In either framework, a researcher may need to keep track of thousands of such events across thousands of pairs of sites. Moreover, these pairs of sites are not statistically independent of one another, as each site belongs to many pairs. Worse, many event types are compatible with either homogenization or differentiation, depending on the prior state of the community.  This complexity makes it difficult to test researchers' claims that their framework can explain commonly-observed patterns.
+As human influence creates the conditions for some species to spread globally and for others to go extinct, community ecologists have become increasingly concerned about the loss of local biotic distinctiveness, or biotic homogenization.
+Homogenization is typically quantified as an increase in the average Jaccard similarity among pairs of sites on a landscape ($\bar{J}$, defined more precisely in Equation \ref{def} below).
+Community ecologists have struggled, however, to scale site-level biotic turnover into predictable changes in this quantity.
+While several frameworks have been proposed for understanding these effects, they are cumbersome to use in practice. For example, @olden_toward_2003's framework involves classifying biotic turnover events into 14 categories, while @rosenblad_new_2016's framework involves six. In either framework, a researcher may need to keep track of thousands of such events across thousands of pairs of sites.
+Moreover, these pairs of sites are not statistically independent of one another, as each site belongs to many pairs.
+Worse, many event types are compatible with either homogenization or differentiation, depending on the prior state of the community.
+This complexity makes it difficult to test researchers' claims that their framework can explain commonly-observed patterns.
 
 <!--Importantly, they identify a "pivot point" in initial similarity levels that seems to control whether a given set of introductions and extinctions will increase similarity or decrease it (although they do not provide a mechanism behind the existence of this pivot point, how robust it is to different kinds of biotic changes, or how to easily find its value). -->
 
-The Jaccard similarity between site $i$ and $j$ ($\bar{J}$) is defined as the proportion of species that are shared between them. More precisely, it is the number of species that are shared between the two sites ($S_{ij}$) divided by the number of species that occur in at least one ($T_{ij}$). The landscape-level mean Jaccard similarity value that homogenization research has largely focused on is therefore given by
+The Jaccard similarity between site $i$ and $j$ ($\bar{J}$) is defined as the proportion of species that are shared between them. 
+More precisely, it is the number of species that are shared between the two sites ($S_{ij}$) divided by the number of species that occur in at least one ($T_{ij}$).
+The landscape-level mean Jaccard similarity value that homogenization research has largely focused on is therefore given by
 
 \begin{equation} 
 \bar{J} = \frac{1}{{{n}\choose{2}}}\sum_{i \neq j} \bigg(\frac{S_{ij}}{T_{ij}}\bigg),
@@ -57,12 +65,17 @@ The Jaccard similarity between site $i$ and $j$ ($\bar{J}$) is defined as the pr
 \end{equation} 
 
 
-where $n$ is the number of sites on the landscape (e.g. islands in an archipelago) and $n\choose2$ is the number of site pairs, equal to $n(n-1)/2$. Most existing frameworks focus on tracking biotic turnover's effects on individual $S_{ij}$ and $T_{ij}$ values [e.g. @olden_toward_2003; @rosenblad_new_2016]. However, there is good reason to believe that this level of detail is not necessary for understanding $\bar{J}$. Using 47 large data sets from the USDA PLANTS database [one for each of the contiguous US states except Delaware; @usda_nrcs_plants_2010], I found that independently shuffling the list of sites occupied by every species only affected $\bar{J}$ by a nearly imperceptible amount (an average of `r round(mean(errors), 3)` on a scale from 0 to 1; Appendix 1). 
-
+where $n$ is the number of sites on the landscape (e.g. islands in an archipelago) and $n\choose2$ is the number of site pairs, equal to $n(n-1)/2$.
+Most existing frameworks focus on tracking biotic turnover's effects on individual $S_{ij}$ and $T_{ij}$ values [e.g. @olden_toward_2003; @rosenblad_new_2016].
+However, there is good reason to believe that this level of detail is not necessary for understanding $\bar{J}$.
+Using 47 large data sets from the USDA PLANTS database [one for each of the contiguous US states except Delaware; @usda_nrcs_plants_2010], I found that independently shuffling the list of sites occupied by every species only affected $\bar{J}$ by a nearly imperceptible amount (an average of `r round(mean(errors), 3)` on a scale from 0 to 1; Appendix 1).
 
 # The role of occupancy
 
-If similarity and homogenization do not depend strongly on which sites are occupied by which species, then what does matter? In @harris_occupancy_2011, two colleagues and I showed (empirically and with an appeal to the law of large numbers) that average similarity depends primarily on the proportion of sites occupied by each species. Specifically, we defined an approximation to mean Jaccard similarity, $J^*$, given by the average value of $S_{ij}$ divided by the average value of $T_{ij}$. Substituting in formulas for these two averages, we derived
+If similarity and homogenization do not depend strongly on which sites are occupied by which species, then what does matter? 
+In @harris_occupancy_2011, two colleagues and I showed (empirically and with an appeal to the law of large numbers) that average similarity depends primarily on the proportion of sites occupied by each species. 
+Specifically, we defined an approximation to mean Jaccard similarity, $J^*$, given by the average value of $S_{ij}$ divided by the average value of $T_{ij}$.
+Substituting in formulas for these two averages, we derived
 
 \begin{equation} 
 J^*=\sum_k{p_kn \choose 2} \Big/ \sum_k\Bigg[{n\choose 2} - {(1 - p_k)n\choose 2}\Bigg],
@@ -70,9 +83,15 @@ J^*=\sum_k{p_kn \choose 2} \Big/ \sum_k\Bigg[{n\choose 2} - {(1 - p_k)n\choose 2
 
 where $p_k$ is the proportion of sites occupied by species $k$.
 
-Despite the omission of any information at the level of individual sites or site pairs, we showed that the approximation explained 99.8% of the variance in $\bar{J}$ across the 47 USDA PLANTS data sets. It also explained an average of 98.8% of the variance in species-level effects on average similarity. The paper also introduced the *blender* package [@harris_blender:_2014] for R [@r_core_team_r:_2015], which allows users to easily perform these calculations. Similar results were presented around the same time by @chase_using_2011 and by @vergara_island_2011.
+Despite the omission of any information at the level of individual sites or site pairs, we showed that the approximation explained 99.8% of the variance in $\bar{J}$ across the 47 USDA PLANTS data sets.
+It also explained an average of 98.8% of the variance in species-level effects on average similarity.
+The paper also introduced the *blender* package [@harris_blender:_2014] for R [@r_core_team_r:_2015], which allows users to easily perform these calculations.
+Similar results were presented around the same time by @chase_using_2011 and by @vergara_island_2011.
 
-The above equation can be simplified further using @harris_occupancy_2011's notion of "effective occupancy," denoted $p^*$. This (approximate?) weighted average of the the species' $p_k$ values acts as a "center of gravity" for average similarity: species whose $p_k$ values exceed $p^*$ pull its value up, while species with smaller $p_k$ value pull $p^*$ down. For the same reason, the existence of exotic species will generally cause net differentiation until they occupy at least as many sites as their native counterparts; from then on, their spread will make the landscape more homogenous than it would have been if they hadn't invaded at all (Figure 1). The existence of such a threshold has been clear to homogenization researchers for more than a decade [refs; @rosenblad_new_2016], but its location has not been discussed outside of @harris_occupancy_2011 (nor has the location of an equally important point at $p^*/2$, shown in Figure 1).
+The above equation can be simplified further using @harris_occupancy_2011's notion of "effective occupancy," denoted $p^*$. 
+This (approximate?) weighted average of the the species' $p_k$ values acts as a "center of gravity" for average similarity: species whose $p_k$ values exceed $p^*$ pull its value up, while species with smaller $p_k$ value pull $p^*$ down.
+For the same reason, the existence of exotic species will generally cause net differentiation until they occupy at least as many sites as their native counterparts; from then on, their spread will make the landscape more homogenous than it would have been if they hadn't invaded at all (Figure 1). 
+The existence of such a threshold has been clear to homogenization researchers for more than a decade [refs; @rosenblad_new_2016], but its location has not been discussed outside of @harris_occupancy_2011 (nor has the location of an equally important point at $p^*/2$, shown in Figure 1).
 
 
 ```{r, echo = FALSE}
@@ -127,7 +146,12 @@ One point that @harris_occupancy_2011 made but did not emphasize is that the res
 \label{decomposition}
 \end{equation} 
 
-where $\mathrm{cov}$ refers to the population covariance (rather than the more familiar sample covariance). In other words, $\bar{J}$ can be exactly decomposed into an occupancy component and a covariance component[^1]. In 2011, we largely disregarded the covariance component because it was usually small (and approaches zero as the size of the data set increases under some fairly realistic assumptions), but it has important consequences for the way we think about homogenization. In general, it implies that landscapes whose local species compositions are determined by a small number of important factors (which will tend to have negative covariances) will have higher mean similarity values than would be implied by their occupancy rates (Figure 2a). The covariance term also implies a possible discrepancy between an intuitive view of beta diversity and the one given by $\bar{J}$ (Figure 2); this apparent conflict deserves further scrutiny. If $\bar{J}$ remains an important metric in future research, then a deeper understanding of this covariance term will be important [^2].
+where $\mathrm{cov}$ refers to the population covariance (rather than the more familiar sample covariance). 
+In other words, $\bar{J}$ can be exactly decomposed into an occupancy component and a covariance component[^1].
+In 2011, we largely disregarded the covariance component because it was usually small (and approaches zero as the size of the data set increases under some fairly realistic assumptions), but it has important consequences for the way we think about homogenization.
+In general, it implies that landscapes whose local species compositions are determined by a small number of important factors (which will tend to have negative covariances) will have higher mean similarity values than would be implied by their occupancy rates (Figure 2a).
+The covariance term also implies a possible discrepancy between an intuitive view of beta diversity and the one given by $\bar{J}$ (Figure 2); this apparent conflict deserves further scrutiny.
+If $\bar{J}$ remains an important metric in future research, then a deeper understanding of this covariance term will be important [^2].
 
 [^1]: Note that our 2011 treatment of this decomposition switched $J^*$ and $\bar{J}$ in Appendix 2's Equation B1 and some of the subsequent discussion in that Appendix is backwards.
 
@@ -196,7 +220,8 @@ plot_grid(
 
 # Avenues for future research
 
-If most of the variance studied in homogenization research can be explained by $p^*$ or $J^*$ and the rest can be explained by a simple covariance term, where does this leave the field? At the end of @harris_occupancy_2011, we listed three paths forward, each of which remains promising five years later.
+If most of the variance studied in homogenization research can be explained by $p^*$ or $J^*$ and the rest can be explained by a simple covariance term, where does this leave the field?
+At the end of @harris_occupancy_2011, we listed three paths forward, each of which remains promising five years later.
 
 1. To the extent that $p^*$ explains most of the variance, homogenization researchers should focus on explaining and predicting changes in species' occupancy rates. These are already important for other reasons in basic and applied community ecology.
 
@@ -214,3 +239,4 @@ This work was funded by the Gordon and Betty Moore Foundation’s Data-Driven Di
 
 # References
 \singlespacing
+
