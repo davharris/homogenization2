@@ -54,7 +54,7 @@ errors = sapply(
 
 # Introduction
 
-As human influences spread some species globally and drive others extinct, community ecologists have become increasingly concerned about the loss of local biotic distinctiveness, or *biotic homogenization* [@mckinney_biotic_1999; @rooney_biotic_2007; refs].
+As human influences spread some species globally and drive others extinct, community ecologists have become increasingly concerned about the loss of local biotic distinctiveness, or *biotic homogenization* [@mckinney_biotic_1999; @rooney_biotic_2007].
 In general, homogenization occurs when landscapes become dominated by cosmopolitan invaders and lose local endemics, although ecologists have observed a great deal of context dependence [@mckinney_exotics_2004; @olden_defining_2006; @rooney_biotic_2007].
 While several frameworks have been proposed for understanding these effects at the level of individual site pairs, they are cumbersome to use in practice. 
 For example, @olden_toward_2003's framework involves classifying biotic turnover events into 14 categories, while @rosenblad_new_2016's framework involves six.
@@ -168,9 +168,10 @@ scoop = sapply(values, function(x){jstar(c(rep(baseline, K), x), N)})
 The above equation can be simplified further using @harris_occupancy_2011's notion of "effective occupancy," denoted $p^*$. 
 By interpolating between the species' $p_k$ values, $p^*$ acts as a "center of gravity" for average similarity: species whose $p_k$ values exceed $p^*$ pull its value up, while species with smaller $p_k$ values pull $p^*$ down.
 As a result, the addition of exotic species will generally cause net differentiation until they occupy at least as many sites as their native counterparts; from then on, their spread will make the landscape more homogenous than it would have been if they hadn't invaded at all (Figure 1). 
-The existence of such a threshold has been clear to homogenization researchers for more than a decade [@mckinney_exotics_2004; @rooney_biotic_2007; @rosenblad_new_2016], but its location has not been discussed outside of @harris_occupancy_2011 (nor has the location of an equally important point at $p^*/2$, shown in Figure 1).
+The existence of such a critical point has been clear to homogenization researchers for more than a decade [@mckinney_exotics_2004; @rooney_biotic_2007; @rosenblad_new_2016], but its location has not been discussed outside of @harris_occupancy_2011 (nor has the location of an equally important point at $p^*/2$, shown in Figure 1).
 
-A large portion of the homogenization literature can be explained by this single value. Species that have had longer to spread, and species whose local occupancy rates did not start at zero do not have any unique biological property that causes them to exert larger homogenizing effects on landscapes; they will simply tend to be farther along the path shown in Figure 1 [(c.f. refs]. Precisely the same argument could be made for species with high dispersal rates [refs], [etc.].
+As discussed in @harris_occupancy_2011, a large portion of the homogenization literature can be explained by this single value.
+To the extent that occupancy generally explains more than 95% of the variance in $\bar{J}$, the residuals will be too small for other mechanisms (such as explanations based on the biological properties of the taxon being studied or the spatial scale of the observations) to play much of a role.
 
 # The role of covariance
 
@@ -254,16 +255,16 @@ If $\bar{J}$ remains an important metric in future research, then a deeper under
 
 # Avenues for future research
 
-If most of the variance studied in homogenization research can be explained by $p^*$ or $J^*$, and the rest can be explained by a simple covariance term, where does this leave the field?
+If nearly all of the variance studied in homogenization research can be explained by occupancy, and the rest can be explained by a simple covariance term, where does this leave the field?
 At the end of @harris_occupancy_2011, we listed three paths forward, each of which remains promising five years later.
 
 1. To the extent that $p^*$ explains most of the variance, homogenization researchers should focus on explaining and predicting changes in species' occupancy rates. 
-These are already important for other reasons in basic and applied community ecology, so predictive methods from those fields [@pearse_predicting_2013; @harris_generating_2015] could help make homogenization research more predictive.
+These are already important for other reasons in basic and applied community ecology, so predictive methods from those fields [@pearse_predicting_2013; @harris_generating_2015] could help make better forecasts about homogenization than other extrapolation approaches [c.f. @rosenblad_new_2016].
 
 2. Researchers should increase their focus on the covariance effects that cause deviations from $J^*$.
 @welsh_fallacy_1988's approximation involving the variance of $T_{ij}$ will likely be a fruitful starting point for these analyses[^2].
-Alternatively, researchers could focus on the observed deviations from permutation-based null distributions [@chase_drought_2007; @chase_using_2011]. 
-Recent research on [ordination, JSDM; @harris_generating_2015; refs].
+Alternatively, researchers could focus on the observed deviations from permutation-based null distributions [@chase_drought_2007; @chase_using_2011].
+Predictive models that account for correlations among species' occurrence probabilities  [@warton_so_2015] may also be useful for characterizing the covraiance term.
 
 [^2]: Omitting subscripts, the approximation is $-\mathrm{cov}(S/T, T)/\mathrm{mean}(T) \approx \mathrm{mean}(S)\mathrm{var}(T)/\mathrm{mean}(T)^3$. As in Equation \ref{decomp}, the population variance and covariance should be used rather than the sample variance/covariance.
 
