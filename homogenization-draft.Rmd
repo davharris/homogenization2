@@ -1,5 +1,5 @@
 ---
-title: "Re-considering the agenda for biotic homogenization research"
+title: "Beyond mean similarity: reconsidering homogenization research"
 author: "David J. Harris"
 output: 
   pdf_document:
@@ -11,25 +11,33 @@ geometry: margin=1.25in
 csl: ecology.csl
 header-includes:
   - \usepackage{setspace}
-abstract: ""
+abstract: "Studies of beta diversity often use the average Jaccard similarity among pairs of sites to quantify a landscape's biotic homogeneity. Over more than a decade, community ecologists have suggested a range of ecological hypotheses and frameworks to explain the variation in species' effects on this average similarity. However, many of these results can be explained simply by counting the proportion of sites occupied by each species and adding a small correction for non-independent assortment. Specifically, average Jaccard similarity can be decomposed exactly into an occupancy-based component that explains most of the variance and a covariance-based component that explains the rest. To the extent that homogenization research can be summarized by these two terms, it contains little information about ecological processes. Future ecological studies on beta diversity and biotic homogenization should therefore focus on 1) explaining changes in occupancy, 2) explaining changes in the covariance terms, and 3) explaining changes in local similarity at sub-landscape scales."
 ---
 
-```{r, message=FALSE, echo = FALSE}
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, library, message=FALSE}
 library(tidyverse)
 library(blender)
 library(viridis)
-library(cowplot)
 data(PLANTS)
 ```
 
 
-```{r, cache = TRUE, echo = FALSE}
+```{r, Appendix1, cache = TRUE}
+# Shuffling error -------------------------------
+
+# Quantify the errors introduced by shuffling species' locations
+# in the 47 landscapes described by the USDA PLANTS data set.
 abbreviations = strsplit(names(PLANTS), " ") %>% 
   map(1) %>% 
   unlist() %>% 
   unique()
 
-
+# Save a vector of mean absolute errors, one for each landscape.
+# The value reported in the manuscript is the mean of this vector.
 errors = sapply(
   abbreviations, 
   function(ab){
@@ -38,6 +46,7 @@ errors = sapply(
     mean(abs(shuffled_values - jbar(x)))
   }
 )
+
 ```
 
 
@@ -45,15 +54,22 @@ errors = sapply(
 
 # Introduction
 
-As human influence creates the conditions for some species to spread globally and for others to go extinct, community ecologists have become increasingly concerned about the loss of local biotic distinctiveness, or biotic homogenization.
-Homogenization is typically quantified as an increase in the average Jaccard similarity among pairs of sites on a landscape ($\bar{J}$, defined more precisely in Equation \ref{def} below).
-Community ecologists have struggled, however, to scale site-level biotic turnover into predictable changes in this quantity.
-While several frameworks have been proposed for understanding these effects, they are cumbersome to use in practice. For example, @olden_toward_2003's framework involves classifying biotic turnover events into 14 categories, while @rosenblad_new_2016's framework involves six. In either framework, a researcher may need to keep track of thousands of such events across thousands of pairs of sites.
-Moreover, these pairs of sites are not statistically independent of one another, as each site belongs to many pairs.
-Worse, many event types are compatible with either homogenization or differentiation, depending on the prior state of the community.
-This complexity makes it difficult to test researchers' claims that their framework can explain commonly-observed patterns.
+As human influences spread some species globally and drive others extinct, community ecologists have become increasingly concerned about the loss of local biotic distinctiveness, or *biotic homogenization* [@mckinney_biotic_1999; @rooney_biotic_2007; refs].
+In general, homogenization occurs when landscapes become dominated by cosmopolitan invaders and lose local endemics, although ecologists have observed a great deal of context dependence [@mckinney_exotics_2004; @olden_defining_2006; @rooney_biotic_2007].
+While several frameworks have been proposed for understanding these effects at the level of individual site pairs, they are cumbersome to use in practice. 
+For example, @olden_toward_2003's framework involves classifying biotic turnover events into 14 categories, while @rosenblad_new_2016's framework involves six.
+In either framework, a researcher may need to keep track of thousands of such events across thousands of pairs of sites.
+Moreover, these pairs of sites will not be statistically independent of one another, as each site will belong to many pairs.
+Worse, many types of turnover event are compatible with either homogenization or differentiation, depending on the prior state of the community.
+This complexity makes it difficult to test researchers' claims that their framework can explain the observed context dependence and make useful predictions about future biotic changes.
 
-<!--Importantly, they identify a "pivot point" in initial similarity levels that seems to control whether a given set of introductions and extinctions will increase similarity or decrease it (although they do not provide a mechanism behind the existence of this pivot point, how robust it is to different kinds of biotic changes, or how to easily find its value). -->
+Homogenization is typically quantified as an increase in the average Jaccard similarity among pairs of sites on a landscape ($\bar{J}$, defined more precisely in Equation \ref{def} below).
+While many papers provide verbal arguments about the behavior of this metric, @harris_occupancy_2011 showed that it is not sensitive to the site-level patterns emphasized by most of these papers.
+As discussed below, nearly all of the variance in mean Jaccard similarity is determined by species' occupancy rates, and the remaining variance is determined by a simple covariance term; there is no room for any additional ecological information in the metric.
+This decomposition can provide researchers a more intuitive and less cumbersome way to study biotic homogenization at the landscape level than previous frameworks.
+As the behavior of landscape-level mean similarity has been fully characterized, homogenization research can now focus on other factors (discussed at the end of this paper).
+
+# Average Jaccard similarity
 
 The Jaccard similarity between site $i$ and $j$ ($\bar{J}$) is defined as the proportion of species that are shared between them. 
 More precisely, it is the number of species that are shared between the two sites ($S_{ij}$) divided by the number of species that occur in at least one ($T_{ij}$).
@@ -65,12 +81,12 @@ The landscape-level mean Jaccard similarity value that homogenization research h
 \end{equation} 
 
 
-where $n$ is the number of sites on the landscape (e.g. islands in an archipelago) and $n\choose2$ is the number of site pairs, equal to $n(n-1)/2$.
+where $n$ is the number of sites on the landscape (e.g. islands in an archipelago) and $n\choose2$ is the number of distinct site pairs, equal to $n(n-1)/2$.
 Most existing frameworks focus on tracking biotic turnover's effects on individual $S_{ij}$ and $T_{ij}$ values [e.g. @olden_toward_2003; @rosenblad_new_2016].
-However, there is good reason to believe that this level of detail is not necessary for understanding $\bar{J}$.
-Using 47 large data sets from the USDA PLANTS database [one for each of the contiguous US states except Delaware; @usda_nrcs_plants_2010], I found that independently shuffling the list of sites occupied by every species only affected $\bar{J}$ by a nearly imperceptible amount (an average of `r round(mean(errors), 3)` on a scale from 0 to 1; Appendix 1).
+However, there is good reason to believe that this level of detail is not necessary for understanding $\bar{J}$ [@harris_occupancy_2011].
+Using 47 large data sets from the USDA PLANTS database [one for each of the contiguous US states except Delaware; @usda_nrcs_plants_2010], I found that independently shuffling the list of sites occupied by every species did not appreciably affect $\bar{J}$ (mean absolute deviation of `r round(mean(errors), 3)` on a scale from 0 to 1; Appendix 1).
 
-# The role of occupancy
+# The central role of occupancy
 
 If similarity and homogenization do not depend strongly on which sites are occupied by which species, then what does matter? 
 In @harris_occupancy_2011, two colleagues and I showed (empirically and with an appeal to the law of large numbers) that average similarity depends primarily on the proportion of sites occupied by each species. 
@@ -79,65 +95,84 @@ Substituting in formulas for these two averages, we derived
 
 \begin{equation} 
 J^*=\sum_k{p_kn \choose 2} \Big/ \sum_k\Bigg[{n\choose 2} - {(1 - p_k)n\choose 2}\Bigg],
+\label{decomp}
 \end{equation} 
 
 where $p_k$ is the proportion of sites occupied by species $k$.
 
 Despite the omission of any information at the level of individual sites or site pairs, we showed that the approximation explained 99.8% of the variance in $\bar{J}$ across the 47 USDA PLANTS data sets.
 It also explained an average of 98.8% of the variance in species-level effects on average similarity.
-The paper also introduced the *blender* package [@harris_blender:_2014] for R [@r_core_team_r:_2015], which allows users to easily perform these calculations.
+The paper introduced the *blender* package [@harris_blender:_2014] for R [@r_core_team_r:_2015], which allows users to easily perform these calculations.
 Similar results were presented around the same time by @chase_using_2011 and by @vergara_island_2011.
 
-The above equation can be simplified further using @harris_occupancy_2011's notion of "effective occupancy," denoted $p^*$. 
-This (approximate?) weighted average of the the species' $p_k$ values acts as a "center of gravity" for average similarity: species whose $p_k$ values exceed $p^*$ pull its value up, while species with smaller $p_k$ value pull $p^*$ down.
-For the same reason, the existence of exotic species will generally cause net differentiation until they occupy at least as many sites as their native counterparts; from then on, their spread will make the landscape more homogenous than it would have been if they hadn't invaded at all (Figure 1). 
-The existence of such a threshold has been clear to homogenization researchers for more than a decade [refs; @rosenblad_new_2016], but its location has not been discussed outside of @harris_occupancy_2011 (nor has the location of an equally important point at $p^*/2$, shown in Figure 1).
+```{r captions}
+# Figure captions -------------------------------
 
+cap1 = "Effect of an exotic species on $J^*$, given a landscape with 120 sites and 20 native species whose occupancy rates produce $p^{*} = 2/3$. The exotic species' effects on $J^*$ occur in three phases as it spreads across the landscape. When an exotic species begins spreading, it will decrease mean similarity until its occupancy rate reaches $p^{*}/2$ (blue arrow). As exotic occupancy continues to increase toward $p^*$, and $J^*$ will return to its initial value (purple arrow). Only once the species becomes more widespread than its native counterparts will it be able to raise $J^*$ above its initial value (red arrow)."
 
-```{r, echo = FALSE}
-cap1 = "Effect of an exotic species on $J^*$, given a landscape with 120 sites and 20 native species whose occupancy rates produce $p^{*} = 2/3$. When an exotic species begins spreading, it will decrease mean similarity until its own occupancy rate reaches $p^{*}/2$ (blue arrow). When exotic occupancy reaches $p^*$, its occupancy will match the rest of the community, and $J^*$ will return to its initial value (purple arrow). Only once the species becomes more widespread than its native counterparts will it be able to raise $J^*$ above its initial value (red arrow)."
-
-cap2 = "Visualizing the covariance component of $\\bar{J}$ (Equation \\ref{decomposition}), holding each species' occurrence rate constant at 50%. In **A**, there are only two kinds of communities: light blue communities that contain species 1-50 and dark blue communities that contain species 51-100. Here, the covariance between $T_{ij}$ and $S_{ij} / T_{ij}$ is strongly negative. In **B**, the two community types are not as distinct, and the absolute value of the covariance is smaller.  In **C**, there are no distinct community types: each site is approximately the same intermediate blue shade and the covariance is not distinguishable from zero. Counter-intuitively, the process of randomly spreading species across the landscape decreases mean similarity from 0.5 to 0.33 rather than increasing it."
+cap2 = "The effect of covariance on $\\bar{J}$ (Equation \\ref{decomposition}), holding each species' occurrence rate constant at 50% and the occupancy component constant at 0.33. In **A**, there are only two kinds of communities: light blue communities that contain species 1-50 and dark blue communities that contain species 51-100. Here, the covariance between $T_{ij}$ and $S_{ij} / T_{ij}$ is strongly negative and covariance contributes substantially to $\\bar{J}$. In **B**, the two community types are not as distinct, and the covariance effect is much smaller.  In **C**, there are no distinct community types and the covariance is not distinguishable from zero. Counter-intuitively, randomly smearing species across the landscape causes anti-homogenization, in terms of mean similarity."
 
 ```
 
+```{r fig1, fig.cap=cap1, fig.height=3.5, fig.width=7, cache = TRUE}
+# Figure 1 -------------------------------
 
-```{r, fig.cap=cap1, fig.height=4, fig.width=8, echo = FALSE, cache = TRUE}
 invisible(cap1)
 baseline = 2/3
 K = 20
 N = 120
+
+# x and y values for the graph
 values = seq(0, 1, length = N + 1)
 scoop = sapply(values, function(x){jstar(c(rep(baseline, K), x), N)})
+
 {
-  plot(values, scoop, type = "l", xaxs = "i", bty = "l",
-       ylim = c(min(scoop) - diff(range(scoop)) / 10, max(scoop)), yaxs = "i", ylab = expression(paste(J, "*")), axes = FALSE, xlab = "Focal species occupancy",
-       lwd = 2)
+  plot(values, scoop, type = "n", xaxs = "i", bty = "l",
+       ylab = expression(paste(J, "*")), axes = FALSE, 
+       xlab = "Focal species occupancy", xlim = c(0, 1.01),
+       ylim = c(min(scoop) - 0.005, max(scoop) + 0.005))
   
   axis(1, c(0, .333, .667, 1))
   axis(2, seq(0, 1, .01), las = 1)
   
-  segments(baseline, 0, baseline, jstar(rep(baseline, K), N))
-  segments(baseline/2, 0, baseline/2, jstar(c(rep(baseline, K), baseline/2), N))
+  segments(baseline, 0, baseline, 1, col = "#00000050")
+  segments(baseline/2, 0, baseline/2, 1, col = "#00000050")
   abline(h = scoop[1], col = "#00000050")
  
-  text(baseline + 0.01, scoop[N * baseline] - .001, expression(paste(p,"*")), adj = 0)
-  text(baseline/2 + 0.01, scoop[N * baseline/2] - .0015, expression(paste(p,"*/2")), adj = 0)
-   
+  text(baseline, max(scoop) - .005, expression(paste(p,"*")), pos = 4)
+  text(baseline/2, max(scoop) - .005, expression(paste(p,"*/2")),
+       pos = 4)
+  
+  is_blue = values < baseline/2
+  is_red = values > baseline
+  is_purple = values > baseline/2 & values < baseline
+  
+  lines(scoop ~ values, subset = is_blue, col = "blue", lwd = 2)
+  lines(scoop ~ values, subset = is_purple, col = "purple", lwd = 2)
+  lines(scoop ~ values, subset = is_red, col = "red", lwd = 2)
+  
   # Differentiating invader
-  arrows(0, scoop[1], baseline/2, scoop[baseline * N / 2 + 1], col = "blue", length = .125)
+  i = sum(is_blue)
+  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "blue", length = .125, lwd = 2)
   
   # Un-differentiating invader
-  arrows(baseline/2, scoop[baseline * N / 2 + 1], baseline, scoop[baseline * N + 1], col = "darkviolet", length = .125)
+  i = match(TRUE, is_red) - 2
+  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "purple", length = .125, lwd = 2)
   
   # Homogenizing invader
-  arrows(baseline, scoop[baseline * N + 1], 1, scoop[N + 1], col = "red", length = .125)
+  i = N
+  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "red", length = .125, lwd = 2)
 }
 ```
 
-A large portion of the homogenization literature can be explained by this single value. Species that have had longer to spread, and species whose local occupancy rates did not start at zero do not have any unique biological property that causes them to exert larger homogenizing effects on landscapes; they will simply tend to be farther along the path shown in Figure 1 (c.f. [refs]. Precisely the same argument could be made for species with high dispersal rates [refs], [etc.].
+The above equation can be simplified further using @harris_occupancy_2011's notion of "effective occupancy," denoted $p^*$. 
+By interpolating between the species' $p_k$ values, $p^*$ acts as a "center of gravity" for average similarity: species whose $p_k$ values exceed $p^*$ pull its value up, while species with smaller $p_k$ values pull $p^*$ down.
+As a result, the addition of exotic species will generally cause net differentiation until they occupy at least as many sites as their native counterparts; from then on, their spread will make the landscape more homogenous than it would have been if they hadn't invaded at all (Figure 1). 
+The existence of such a threshold has been clear to homogenization researchers for more than a decade [@mckinney_exotics_2004; @rooney_biotic_2007; @rosenblad_new_2016], but its location has not been discussed outside of @harris_occupancy_2011 (nor has the location of an equally important point at $p^*/2$, shown in Figure 1).
 
-# Residual variation
+A large portion of the homogenization literature can be explained by this single value. Species that have had longer to spread, and species whose local occupancy rates did not start at zero do not have any unique biological property that causes them to exert larger homogenizing effects on landscapes; they will simply tend to be farther along the path shown in Figure 1 [(c.f. refs]. Precisely the same argument could be made for species with high dispersal rates [refs], [etc.].
+
+# The role of covariance
 
 One point that @harris_occupancy_2011 made but did not emphasize is that the residuals from the $J^*$ approximation are given by an identity from @welsh_fallacy_1988:
 
@@ -147,19 +182,12 @@ One point that @harris_occupancy_2011 made but did not emphasize is that the res
 \end{equation} 
 
 where $\mathrm{cov}$ refers to the population covariance (rather than the more familiar sample covariance). 
-In other words, $\bar{J}$ can be exactly decomposed into an occupancy component and a covariance component[^1].
-In 2011, we largely disregarded the covariance component because it was usually small (and approaches zero as the size of the data set increases under some fairly realistic assumptions), but it has important consequences for the way we think about homogenization.
-In general, it implies that landscapes whose local species compositions are determined by a small number of important factors (which will tend to have negative covariances) will have higher mean similarity values than would be implied by their occupancy rates (Figure 2a).
-The covariance term also implies a possible discrepancy between an intuitive view of beta diversity and the one given by $\bar{J}$ (Figure 2); this apparent conflict deserves further scrutiny.
-If $\bar{J}$ remains an important metric in future research, then a deeper understanding of this covariance term will be important [^2].
 
-[^1]: Note that our 2011 treatment of this decomposition switched $J^*$ and $\bar{J}$ in Appendix 2's Equation B1 and some of the subsequent discussion in that Appendix is backwards.
+```{r, fig.cap=cap2, fig.height=2.5, fig.width=6}
+# Figure 2 -------------------------------
 
-[^2]: @welsh_fallacy_1988 provides additional decompositions, including an approximate based on the variance of $T_{ij}$ that may be especially useful in this regard.
-
-```{r, fig.cap=cap2, fig.height=4, fig.width=8, echo = FALSE}
 invisible(cap2)
-N = 200
+N = 80
 K = 100
 
 pa1 = matrix(NA, K, N)
@@ -174,6 +202,20 @@ pa2 = t(apply(pa1, 1, sample, prob = 1/seq_len(N)^2))
 pa3 = t(apply(pa1, 1, sample))
 
 pa = list(pa1, pa2, pa3)
+labels = sapply(
+  1:3,
+  function(i){
+    S = as.numeric(as.dist(crossprod(pa[[i]])))
+    T = as.numeric(as.dist(K - crossprod(1 - pa[[i]])))
+    
+    paste0(LETTERS[i], ": mean similarity = ",
+           format(jbar(pa[[i]]), nsmall = 2, digits = 2),
+           "\noccupancy component: ",
+           format(jstar(pa[[i]]), nsmall = 2, digits = 2),
+           "\ncovariance component: ", 
+           format(round(-cov(T, S/T) / mean(T), 2),
+                  scientific = FALSE, nsmall = 2))
+  })
 
 plots = lapply(
   1:3,
@@ -187,51 +229,49 @@ plots = lapply(
     out = reshape2::melt(x * 1)
     colnames(out) = c("species", "site", "value")
     out[out == 0] = NA
-    ggplot(out, aes(x = species, y = site, fill = value)) +
-      geom_raster() + 
-      scale_fill_gradient(na.value = "gray98", limits = c(0, 1 + 1E-6)) +
-      guides(fill = FALSE) +
-      coord_cartesian(expand = FALSE) + 
-      theme(plot.margin = unit(c(4, 1, 1, 1), "lines"))
-  })
+    cbind(out, panel = labels[[i]], stringsAsFactors = FALSE)
+  }
+) %>% bind_rows()
 
-labels = sapply(
-  1:3,
-  function(i){
-    S = as.numeric(as.dist(crossprod(pa[[i]])))
-    T = as.numeric(as.dist(K - crossprod(1 - pa[[i]])))
-    
-    paste0(LETTERS[i], ": mean similarity = ",
-           format(jbar(pa[[i]]), nsmall = 2, digits = 2),
-           "\n    covariance effect = ", 
-           format(round(cov(T, S/T) / mean(T), 2),
-                  scientific = FALSE, nsmall = 2))
-  })
-
-plot_grid(
-  plots[[1]], plots[[2]], plots[[3]], 
-  nrow = 1,
-  labels = labels,
-  vjust = 1.5, 
-  hjust = -.1,
-  label_size = 12) 
+ggplot(plots, aes(x = species, y = site, fill = value)) + 
+  geom_tile() + 
+  facet_grid(~panel) +
+  scale_fill_gradient(na.value = "gray97", limits = c(0, 1 + 1E-6)) +
+  guides(fill = FALSE) + 
+  coord_cartesian(c(0, K), c(0, N), FALSE) +
+  theme(plot.margin = unit(c(1, 1, 1, 1), "lines"), panel.spacing.x = unit(1, "lines"),
+        strip.background = element_rect(fill = "white"), text = element_text(size = 11))
 ```
 
 
+Equation \ref{decomp} shows how $\bar{J}$ can be exactly decomposed into an occupancy component and a covariance component[^1].
+In 2011, we largely disregarded the covariance component because it was usually small (and approaches zero as the size of the data set increases under some fairly realistic assumptions), but it has important consequences for the way we think about homogenization.
+In general, it implies that landscapes whose local species compositions are determined by a small number of important factors (which will tend to produce negative covariances) will have higher mean similarity values than would be implied by their occupancy rates (Figure 2a).
+The covariance term also implies a possible discrepancy between an intuitive view of beta diversity and the one given by $\bar{J}$ (Figure 2); this apparent conflict deserves further scrutiny.
+If $\bar{J}$ remains an important metric in future research, then a deeper understanding of this covariance term will be important.
+
+[^1]: Note that our 2011 treatment of this decomposition switched $J^*$ and $\bar{J}$ in Appendix 2's Equation B1 and some of the subsequent discussion in that Appendix is backwards.
+
 # Avenues for future research
 
-If most of the variance studied in homogenization research can be explained by $p^*$ or $J^*$ and the rest can be explained by a simple covariance term, where does this leave the field?
+If most of the variance studied in homogenization research can be explained by $p^*$ or $J^*$, and the rest can be explained by a simple covariance term, where does this leave the field?
 At the end of @harris_occupancy_2011, we listed three paths forward, each of which remains promising five years later.
 
-1. To the extent that $p^*$ explains most of the variance, homogenization researchers should focus on explaining and predicting changes in species' occupancy rates. These are already important for other reasons in basic and applied community ecology.
+1. To the extent that $p^*$ explains most of the variance, homogenization researchers should focus on explaining and predicting changes in species' occupancy rates. 
+These are already important for other reasons in basic and applied community ecology, so predictive methods from those fields [@pearse_predicting_2013; @harris_generating_2015] could help make homogenization research more predictive.
 
-2. Researchers should increase their focus on the covariance effects that cause deviations from $J^*$ or from permutation-based null distributions [@chase_drought_2007; @chase_using_2011]. 
+2. Researchers should increase their focus on the covariance effects that cause deviations from $J^*$.
+@welsh_fallacy_1988's approximation involving the variance of $T_{ij}$ will likely be a fruitful starting point for these analyses[^2].
+Alternatively, researchers could focus on the observed deviations from permutation-based null distributions [@chase_drought_2007; @chase_using_2011]. 
+Recent research on [ordination, JSDM; @harris_generating_2015; refs].
 
-3. The fact that average Jaccard similarity can be calculated with so little ecological information (just occupancy rates and a covariance term) suggests that a great deal of information is lost during the averaging process. To that end, homogenization researchers should continue to think about similarity at scales below the landscape level (e.g. relationships between pairwise similarity and geographic distance). As the focus of homogenization research shifts toward sub-landscape scales, a deeper understanding of biotic turnover on individual pairs of sites (as provided by the frameworks of @olden_toward_2003 and @rosenblad_new_2016) will become increasingly valuable. 
+[^2]: Omitting subscripts, the approximation is $-\mathrm{cov}(S/T, T)/\mathrm{mean}(T) \approx \mathrm{mean}(S)\mathrm{var}(T)/\mathrm{mean}(T)^3$. As in Equation \ref{decomp}, the population variance and covariance should be used rather than the sample variance/covariance.
 
+3. If $\bar{J}$ can be calculated exactly from occupancy rates and a covariance term, then a great deal of local information must be lost during the averaging process.
+To use that information effectively, homogenization researchers will need to think about similarity at scales below the landscape level.
+As the focus of homogenization research shifts toward sub-landscape scales, a deeper understanding of biotic turnover on individual pairs of sites (as provided by the frameworks of @olden_toward_2003 and @rosenblad_new_2016) will become increasingly valuable. 
 
-
-<!--Reducing the distinctiveness of the extreme site types in Figure [X] intuitively seems like a form of homogenization, even though it would decrease mean Jaccard similarity and thus typically be considered differentating.  Ecologists should thus consider whether mean Jaccard similarity is the best metric for their purposes, or whether they would be better served by keeping track of something like the number of low-similarity pairs. More generally, explaining the variance in similarity among pairs of sites within a landscape (as ecologists frequently do by regressing similarity against geographic distance or other factors) will become increasingly important. -->
+Finally, the potential discrepancy between $\bar{J}$'s behavior and the intuitive idea that randomly shuffling species should be a homogenizing process (Figure 2) implies that community ecologists should consider the use of other metrics for landscape-level homogenization.
 
 # Acknowledgements
 
