@@ -36,6 +36,8 @@ baseline = 2/3
 K = 20
 N = 120
 
+lwd = 4
+
 # x and y values for the graph
 values = seq(0, 1, length = N + 1)
 scoop = sapply(values, function(x){jstar(c(rep(baseline, K), x), N)})
@@ -61,21 +63,31 @@ scoop = sapply(values, function(x){jstar(c(rep(baseline, K), x), N)})
   is_red = values > baseline
   is_purple = values > baseline/2 & values < baseline
   
-  lines(scoop ~ values, subset = is_blue, col = "blue", lwd = 2)
-  lines(scoop ~ values, subset = is_purple, col = "purple", lwd = 2)
-  lines(scoop ~ values, subset = is_red, col = "red", lwd = 2)
+  lines(scoop ~ values, subset = is_blue, col = "blue", lwd = lwd)
+  lines(scoop ~ values, subset = is_purple, col = "purple", lwd = lwd)
+  lines(scoop ~ values, subset = is_red, col = "red", lwd = lwd)
   
   # Differentiating invader
   i = sum(is_blue)
-  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "blue", length = .125, lwd = 2)
+  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "blue", length = .2, lwd = lwd)
   
   # Un-differentiating invader
   i = match(TRUE, is_red) - 2
-  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "purple", length = .125, lwd = 2)
+  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "purple", length = .2, lwd = lwd)
   
   # Homogenizing invader
   i = N
-  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "red", length = .125, lwd = 2)
+  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "red", length = .2, lwd = lwd)
+}
+b = blend(PLANTS[grep("TN", names(PLANTS))])
+{
+  plot(b$scoop, type = "l",
+       ylim = range(b$species.delta.table$delta.J.Bars), xlim = c(0, 1),
+       xaxs = "i")
+  points(delta.J.Bars ~ occupancy, data = b$species.delta.table, pch = 16, cex = 0.5, col = "#00000090")
+  rect(0, -10, b$p.Star/2, 10, col = alpha("blue", .25), border = FALSE)
+  rect(b$p.Star/2, -10, b$p.Star, 10, col = alpha("purple", .25), border = FALSE)
+  rect(b$p.Star, -10, 1, 10, col = alpha("red", .25), border = FALSE)
 }
 # Figure 2 -------------------------------
 
@@ -133,4 +145,4 @@ ggplot(plots, aes(x = species, y = site, fill = value)) +
   guides(fill = FALSE) + 
   coord_cartesian(c(0, K), c(0, N), FALSE) +
   theme(plot.margin = unit(c(1, 1, 1, 1), "lines"), panel.spacing.x = unit(1, "lines"),
-        strip.background = element_rect(fill = "white"), text = element_text(size = 11))
+        strip.background = element_rect(fill = "white"), text = element_text(size = 11), axis.text = element_text(size = 9))
