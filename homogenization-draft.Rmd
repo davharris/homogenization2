@@ -115,23 +115,23 @@ covcap = "\\label{fig:covariance} The effect of covariance on $\\bar{J}$ (Equati
 
 ```
 
-```{r plot_0, cache = TRUE, fig.height=3.5, fig.width=7, fig.cap = datacap}
+```{r plot_0, cache = FALSE, fig.height=3.5, fig.width=7, fig.cap = datacap}
+# Figure 1---------------------------------
 b = blend(PLANTS[grep("LA", names(PLANTS))])
 {
+  par(mar = c(5, 4 + 2, 4, 2) + 0.1)
   plot(b$scoop, type = "l",
        ylim = range(b$species.delta.table$delta.J.Bars), xlim = c(0, 1),
-       xaxs = "i", bty = "l", las = 1)
+       xaxs = "i", bty = "l", las = 1, xlab = "Occupancy rate", ylab = "Change in mean similarity\n")
   points(delta.J.Bars ~ occupancy, data = b$species.delta.table, cex = 0.5)
-  abline(v = c(b$p.Star, b$p.Star/2), lty = 1:2)
-  abline(h = 0)
+  abline(v = c(b$p.Star, b$p.Star/2), col = "#00000050")
+  abline(h = 0, col = "#00000050")
 }
 ```
 
 
-```{r fig1, fig.cap=scoopcap, fig.height=3.5, fig.width=7, cache = TRUE}
+```{r fig1, fig.cap=scoopcap, fig.height=3.5, fig.width=7, cache = FALSE}
 # Figure 2 -------------------------------
-
-invisible(scoopcap)
 baseline = 2/3
 K = 20
 N = 120
