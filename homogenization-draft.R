@@ -2,6 +2,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(blender)
 library(viridis)
+library(ggrepel)
 data(PLANTS)
 # Shuffling error -------------------------------
 
@@ -24,74 +25,78 @@ errors = sapply(
 )
 
 # Figure captions -------------------------------
+datacap = "\\label{fig:datascoop} 
+**A.** 
+Across data sets from 47 US states, mean similarity is almost entirely determined by species' occupancy rates (as calculated with the $J^*$ approximation in Equation \ref{jstar}).
+**B.**
+The proportion of sites occupied by different exotic species in Louisiana explains almost all of the variance in their effects on mean similarity [@harris_occupancy_2011].
+Louisiana was chosen because it had the median $R^2$ value of the 47 available landscapes. 
+As a species invades and spreads across the landscape, it passes through three phases, indicated by colors.
+The boundaries between these phases are given by $p^*/2$ and $p^*$, described in Equation \\ref{pstar}.
+*Phase I*: the invader is rare, and increasing its occupancy magnifies its differentiating influence.
+*Phase II*: spreading the invader makes it more similar to the background of native species, so its net effect approaches zero as the invader spreads.
+*Phase III*: the invader is more common than the background of native species, and incresaes mean similarity as it spreads.
+"
 
-cap1 = "Effect of an exotic species on $J^*$, given a landscape with 120 sites and 20 native species whose occupancy rates produce $p^{*} = 2/3$. The exotic species' effects on $J^*$ occur in three phases as it spreads across the landscape. When an exotic species begins spreading, it will decrease mean similarity until its occupancy rate reaches $p^{*}/2$ (blue arrow). As exotic occupancy continues to increase toward $p^*$, and $J^*$ will return to its initial value (purple arrow). Only once the species becomes more widespread than its native counterparts will it be able to raise $J^*$ above its initial value (red arrow)."
+covcap = "\\label{fig:covariance} 
+The effect of covariance on $\\bar{J}$ (Equation \\ref{decomposition}), holding each species' occurrence rate constant at 50% and the occupancy component constant at 0.33. 
+In **A**, there are only two kinds of communities: light blue communities that contain species 1-50 and dark blue communities that contain species 51-100. 
+Here, the covariance between $T_{ij}$ and $S_{ij} / T_{ij}$ is strongly negative and covariance contributes substantially to $\\bar{J}$. 
+In **B**, the two community types are not as distinct, and the covariance effect is much smaller.
+In **C**, there are no distinct community types and the covariance is not distinguishable from zero. Counter-intuitively, randomly smearing species across the landscape causes anti-homogenization, in terms of mean similarity."
 
-cap2 = "The effect of covariance on $\\bar{J}$ (Equation \\ref{decomposition}), holding each species' occurrence rate constant at 50% and the occupancy component constant at 0.33. In **A**, there are only two kinds of communities: light blue communities that contain species 1-50 and dark blue communities that contain species 51-100. Here, the covariance between $T_{ij}$ and $S_{ij} / T_{ij}$ is strongly negative and covariance contributes substantially to $\\bar{J}$. In **B**, the two community types are not as distinct, and the covariance effect is much smaller.  In **C**, there are no distinct community types and the covariance is not distinguishable from zero. Counter-intuitively, randomly smearing species across the landscape causes anti-homogenization, in terms of mean similarity."
+# Figure 1---------------------------------
+all = blend(PLANTS)
+par(mfrow = c(2, 1))
+par(mar = c(5, 4 + 2, 4, 2) + 0.1)
+par(bty = "l")
+state = all$LA
 
-# Figure 1 -------------------------------
+brewer_cols = RColorBrewer::brewer.pal(3, "PuOr")
+colors = as.character(
+  cut(state$species.delta.table$occupancy, 
+      c(-Inf, state$p.Star/2, state$p.Star, Inf),
+      labels = c(brewer_cols[1], "black", brewer_cols[3]))
+)
 
-invisible(cap1)
-baseline = 2/3
-K = 20
-N = 120
+states = ggplot(all$summary, 
+                aes(x = J.Star, y = J.Bar, label = rownames(all$summary))) + 
+  geom_point() + 
+  geom_text_repel(segment.alpha = 0.25) + 
+  cowplot::theme_cowplot() + 
+  geom_abline(intercept = 0, slope = 1, col = alpha("black", 1/3)) + 
+  xlab("Predicted mean similarity (J*)") + 
+  ylab(expression(paste("Observed mean similarity (", bar(J), ")"))) +
+  theme(plot.margin = unit(c(1, 1, 1.5, 1), "lines"))
 
-lwd = 4
 
-# x and y values for the graph
-values = seq(0, 1, length = N + 1)
-scoop = sapply(values, function(x){jstar(c(rep(baseline, K), x), N)})
+LA = ggplot() + 
+  geom_point(data = state$species.delta.table, aes(x = occupancy, y = delta.J.Bars), 
+             color = colors) + 
+  geom_path(data = state$scoop, aes(x = x, y = y), size = 1, alpha = 0.75) + 
+  cowplot::theme_cowplot() +
+  geom_vline(xintercept = state$p.Star / c(1,2), alpha = 0.5) + 
+  geom_hline(yintercept = 0, alpha = 0.5) + 
+  xlim(0, 1.01) + 
+  coord_cartesian(expand = FALSE) + 
+  geom_text(aes(x = state$p.Star / c(1,2) + 0.01, 
+                y = max(state$species.delta.table$delta.J.Bars - 5E-5), 
+                label = c("p*", "p*/2")),
+            hjust = 0, fontface = "bold", size = 5) +
+  expand_limits(
+    y = c(
+      min(state$species.delta.table$delta.J.Bars - 1E-4),
+      max(state$species.delta.table$delta.J.Bars + 1E-4))
+  ) +
+  xlab("Proportion of sites occupied by invader") +
+  ylab("Effect on mean similarity") +
+  theme(plot.margin = unit(c(1.5, 1, 1, 1), "lines"))
 
-{
-  plot(values, scoop, type = "n", xaxs = "i", bty = "l",
-       ylab = expression(paste(J, "*")), axes = FALSE, 
-       xlab = "Focal species occupancy", xlim = c(0, 1.01),
-       ylim = c(min(scoop) - 0.005, max(scoop) + 0.005))
-  
-  axis(1, c(0, .333, .667, 1))
-  axis(2, seq(0, 1, .01), las = 1)
-  
-  segments(baseline, 0, baseline, 1, col = "#00000050")
-  segments(baseline/2, 0, baseline/2, 1, col = "#00000050")
-  abline(h = scoop[1], col = "#00000050")
- 
-  text(baseline, max(scoop) - .005, expression(paste(p,"*")), pos = 4)
-  text(baseline/2, max(scoop) - .005, expression(paste(p,"*/2")),
-       pos = 4)
-  
-  is_blue = values < baseline/2
-  is_red = values > baseline
-  is_purple = values > baseline/2 & values < baseline
-  
-  lines(scoop ~ values, subset = is_blue, col = "blue", lwd = lwd)
-  lines(scoop ~ values, subset = is_purple, col = "purple", lwd = lwd)
-  lines(scoop ~ values, subset = is_red, col = "red", lwd = lwd)
-  
-  # Differentiating invader
-  i = sum(is_blue)
-  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "blue", length = .2, lwd = lwd)
-  
-  # Un-differentiating invader
-  i = match(TRUE, is_red) - 2
-  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "purple", length = .2, lwd = lwd)
-  
-  # Homogenizing invader
-  i = N
-  arrows(values[i], scoop[i], values[i + 1], scoop[i + 1], col = "red", length = .2, lwd = lwd)
-}
-b = blend(PLANTS[grep("TN", names(PLANTS))])
-{
-  plot(b$scoop, type = "l",
-       ylim = range(b$species.delta.table$delta.J.Bars), xlim = c(0, 1),
-       xaxs = "i")
-  points(delta.J.Bars ~ occupancy, data = b$species.delta.table, pch = 16, cex = 0.5, col = "#00000090")
-  rect(0, -10, b$p.Star/2, 10, col = alpha("blue", .25), border = FALSE)
-  rect(b$p.Star/2, -10, b$p.Star, 10, col = alpha("purple", .25), border = FALSE)
-  rect(b$p.Star, -10, 1, 10, col = alpha("red", .25), border = FALSE)
-}
+cowplot::plot_grid(states, LA, nrow = 2, align = "v",
+                   labels = c("A", "B"), vjust = 1.25)
 # Figure 2 -------------------------------
 
-invisible(cap2)
+invisible(covcap)
 N = 80
 K = 100
 
